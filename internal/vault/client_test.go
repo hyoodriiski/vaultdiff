@@ -48,6 +48,9 @@ func TestReadSecret_KVv1(t *testing.T) {
 	if data["foo"] != "bar" {
 		t.Errorf("expected foo=bar, got %v", data["foo"])
 	}
+	if data["baz"] != "qux" {
+		t.Errorf("expected baz=qux, got %v", data["baz"])
+	}
 }
 
 func TestReadSecret_NotFound(t *testing.T) {
@@ -65,5 +68,23 @@ func TestReadSecret_NotFound(t *testing.T) {
 	_, err = client.ReadSecret("secret/missing")
 	if err == nil {
 		t.Fatal("expected error for missing secret, got nil")
+	}
+}
+
+func TestReadSecret_Forbidden(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"errors":["permission denied"]}`))
+	}))
+	defer server.Close()
+
+	client, err := NewClient(server.URL, "invalid-token")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	_, err = client.ReadSecret("secret/restricted")
+	if err == nil {
+		t.Fatal("expected error for forbidden secret, got nil")
 	}
 }
