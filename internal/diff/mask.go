@@ -37,6 +37,17 @@ func (o MaskOptions) isSensitiveKey(key string) bool {
 	return false
 }
 
+// AddPattern appends a compiled regexp pattern to the MaskOptions pattern list.
+// This allows callers to extend the default sensitive key patterns at runtime.
+func (o *MaskOptions) AddPattern(pattern string) error {
+	p, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+	o.Patterns = append(o.Patterns, p)
+	return nil
+}
+
 // ApplyMask replaces sensitive values in a slice of Changes with the mask string.
 func ApplyMask(changes []Change, opts MaskOptions) []Change {
 	if !opts.Enabled {
