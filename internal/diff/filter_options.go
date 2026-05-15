@@ -1,6 +1,9 @@
 package diff
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // ParseFilterFlag parses a comma-separated list of change type strings into
 // a FilterOptions struct. Valid values: "added", "removed", "modified", "unchanged".
@@ -22,7 +25,11 @@ func ParseFilterFlag(types []string) (FilterOptions, error) {
 		case ChangeTypeUnchanged:
 			opts.IncludeUnchanged = true
 		default:
-			return FilterOptions{}, fmt.Errorf("unknown change type filter: %q (valid: added, removed, modified, unchanged)", t)
+			return FilterOptions{}, fmt.Errorf(
+				"unknown change type filter: %q (valid: %s)",
+				t,
+				strings.Join(SupportedFilterTypes(), ", "),
+			)
 		}
 	}
 	return opts, nil
