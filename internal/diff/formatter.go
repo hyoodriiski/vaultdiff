@@ -1,6 +1,7 @@
 package diff
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -35,6 +36,17 @@ func TextFormatter(w io.Writer, result *Result) error {
 		case Unchanged:
 			// omit unchanged keys in text output
 		}
+	}
+	return nil
+}
+
+// JSONFormatter writes a machine-readable JSON representation of the diff
+// result to the given writer.
+func JSONFormatter(w io.Writer, result *Result) error {
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(result); err != nil {
+		return fmt.Errorf("diff: failed to encode result as JSON: %w", err)
 	}
 	return nil
 }
