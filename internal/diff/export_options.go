@@ -37,3 +37,15 @@ func ParseExportFlags(format string, headers bool) (ExportOptions, error) {
 		)
 	}
 }
+
+// IsValidExportFormat reports whether the given format string is a supported
+// export format. The check is case-insensitive.
+func IsValidExportFormat(format string) bool {
+	format = strings.TrimSpace(strings.ToLower(format))
+	switch ExportFormat(format) {
+	case ExportFormatCSV, ExportFormatJSON, ExportFormatTSV:
+		return true
+	default:
+		return false
+	}
+}
